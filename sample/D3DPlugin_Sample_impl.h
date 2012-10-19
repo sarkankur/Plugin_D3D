@@ -1,6 +1,7 @@
 // This sample will make your rendering window green, but you are free
 // to do something more meaningfull ;)
 
+#include <IPluginManager.h>
 #include <IPluginD3D.h>
 #include <d3d9.h>
 #include <dxgi.h>
@@ -8,7 +9,7 @@
 #include <d3d11.h>
 
 class CMyD3D
-    : private ID3DEventListener
+    : private D3DPlugin::ID3DEventListener
 {
 protected:
 	bool bDX9;
@@ -20,7 +21,9 @@ protected:
 		//ID3D11Device*		dx11;
 	} m_pDevice;
 
-	IDirect3DStateBlock9*	m_pStateBlock;
+    PluginManager::IPluginBase* m_pD3DPlugin;
+    D3DPlugin::IPluginD3D* m_pD3DSystem;
+	IDirect3DStateBlock9* m_pStateBlock;
 
 	void OnPrePresent() {
 		if(bDX9)
@@ -49,10 +52,13 @@ public:
 		m_pDevice.ptr	= NULL;
 		m_pStateBlock	= NULL;
 
-		if(gD3DSystem)
+        m_pD3DPlugin = gPluginManager->GetPluginByName("D3D");
+        m_pD3DSystem = static_cast<D3DPlugin::IPluginD3D*>(m_pD3DPlugin ? m_pD3DPlugin->GetConcreteInterface() : NULL);
+
+		if(m_pD3DSystem)
 		{
 			// Initialize the device
-			m_pDevice.ptr = gD3DSystem->GetDevice();
+			m_pDevice.ptr = m_pD3DSystem->GetDevice();
 			bDX9 = true;
 
 			if(bDX9 && m_pDevice.ptr)
@@ -61,13 +67,13 @@ public:
 			}
 
 			// the listeners will be called renderer thread.
-			gD3DSystem->RegisterListener(this);
+			m_pD3DSystem->RegisterListener(this);
 		}
 	}
 
 	~CMyD3D() {
-		if(gD3DSystem)
-			gD3DSystem->UnregisterListener(this);
+		if(m_pD3DSystem)
+			m_pD3DSystem->UnregisterListener(this);
 
 		SAFE_RELEASE(m_pStateBlock);
 	}
