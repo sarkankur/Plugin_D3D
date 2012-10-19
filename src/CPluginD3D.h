@@ -79,18 +79,18 @@ namespace D3DPlugin
                 return static_cast<IPluginBase*>( this );
             };
 
-            void RegisterListener(ID3DEventListener* item);
-            void UnregisterListener(ID3DEventListener* item);
+            void RegisterListener( ID3DEventListener* item );
+            void UnregisterListener( ID3DEventListener* item );
 
             void* GetDevice();
 
-            void ActivateEventDispatcher(bool bActivate);
+            void ActivateEventDispatcher( bool bActivate );
             eD3DType GetType();
             void* GetSwapChain();
             void* GetDeviceContext();
 
-            ITexture* CreateTexture(void** pD3DTextureDst, int width, int height, int numMips, ETEX_Format eTF, int flags);
-            ITexture* InjectTexture(void* pD3DTextureSrc, int nWidth, int nHeight, ETEX_Format eTF, int flags);
+            ITexture* CreateTexture( void** pD3DTextureDst, int width, int height, int numMips, ETEX_Format eTF, int flags );
+            ITexture* InjectTexture( void* pD3DTextureSrc, int nWidth, int nHeight, ETEX_Format eTF, int flags );
     };
 
     extern CPluginD3D* gPlugin;

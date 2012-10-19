@@ -75,17 +75,20 @@ namespace D3DPlugin
         m_pDXSystem = NULL;
         INT_PTR nModuleOffset = 0;
 
-        if(GetModuleHandle("d3d11.dll") && gEnv->pRenderer->GetRenderType() == eRT_DX11)
+        if ( GetModuleHandle( "d3d11.dll" ) && gEnv->pRenderer->GetRenderType() == eRT_DX11 )
         {
             m_pDXSystem = CD3DSystem11::initSingleton();
         }
-        else if(GetModuleHandle("d3d9.dll") && gEnv->pRenderer->GetRenderType() == eRT_DX9)
+
+        else if ( GetModuleHandle( "d3d9.dll" ) && gEnv->pRenderer->GetRenderType() == eRT_DX9 )
         {
             m_pDXSystem = CD3DSystem9::initSingleton();
         }
 
-        if(!m_pDXSystem)
-            gPlugin->LogError("Couldn't find any suitable renderer");
+        if ( !m_pDXSystem )
+        {
+            gPlugin->LogError( "Couldn't find any suitable renderer" );
+        }
 
         return true;
     }
@@ -105,10 +108,12 @@ namespace D3DPlugin
         return !m_pDXSystem ? NULL : m_pDXSystem->GetDevice();
     }
 
-    void CPluginD3D::ActivateEventDispatcher(bool bActivate)
+    void CPluginD3D::ActivateEventDispatcher( bool bActivate )
     {
-        if(m_pDXSystem)
-            m_pDXSystem->ActivateEventDispatcher(bActivate);
+        if ( m_pDXSystem )
+        {
+            m_pDXSystem->ActivateEventDispatcher( bActivate );
+        }
     }
 
     eD3DType CPluginD3D::GetType()
@@ -126,25 +131,29 @@ namespace D3DPlugin
         return !m_pDXSystem ? NULL : m_pDXSystem->GetDeviceContext();
     }
 
-    void CPluginD3D::RegisterListener(ID3DEventListener* item)
+    void CPluginD3D::RegisterListener( ID3DEventListener* item )
     {
-        if(m_pDXSystem)
-            m_pDXSystem->RegisterListener(item);
+        if ( m_pDXSystem )
+        {
+            m_pDXSystem->RegisterListener( item );
+        }
     }
 
-    void CPluginD3D::UnregisterListener(ID3DEventListener* item)
+    void CPluginD3D::UnregisterListener( ID3DEventListener* item )
     {
-        if(m_pDXSystem)
-            m_pDXSystem->UnregisterListener(item);
+        if ( m_pDXSystem )
+        {
+            m_pDXSystem->UnregisterListener( item );
+        }
     }
 
-    ITexture* CPluginD3D::CreateTexture(void** pD3DTextureDst, int width, int height, int numMips, ETEX_Format eTF, int flags)
+    ITexture* CPluginD3D::CreateTexture( void** pD3DTextureDst, int width, int height, int numMips, ETEX_Format eTF, int flags )
     {
-        return !m_pDXSystem ? NULL : m_pDXSystem->CreateTexture(pD3DTextureDst, width, height, numMips, eTF, flags);
+        return !m_pDXSystem ? NULL : m_pDXSystem->CreateTexture( pD3DTextureDst, width, height, numMips, eTF, flags );
     }
 
-    ITexture* CPluginD3D::InjectTexture(void* pD3DTextureSrc, int nWidth, int nHeight, ETEX_Format eTF, int flags)
+    ITexture* CPluginD3D::InjectTexture( void* pD3DTextureSrc, int nWidth, int nHeight, ETEX_Format eTF, int flags )
     {
-        return !m_pDXSystem ? NULL : m_pDXSystem->InjectTexture(pD3DTextureSrc, nWidth, nHeight, eTF, flags);
+        return !m_pDXSystem ? NULL : m_pDXSystem->InjectTexture( pD3DTextureSrc, nWidth, nHeight, eTF, flags );
     }
 }
