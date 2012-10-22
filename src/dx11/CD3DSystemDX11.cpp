@@ -20,6 +20,9 @@ GEN_HOOK_( void, __in_opt ID3D11GeometryShader* pShader, __in_ecount_opt( NumCla
 {
     CALL_ORGINAL_( , pShader, ppClassInstances, NumClassInstances );
 
+    //FIXME:
+    // Note: this is more of a hack since access to swap chain not yet implemented
+    // (multiple calls for each frame will come through the listener must handle it by registering a OnPostUpdate and setting a dirty flag)
     if ( pShader == NULL && ppClassInstances == NULL && NumClassInstances == 0 )
     {
         D3DPlugin::gD3DSystem11->OnPostBeginScene();
@@ -116,21 +119,6 @@ bool GetD3D11DeviceData( INT_PTR* unkdata, int nDatalen, void* pParam )
 
 namespace D3DPlugin
 {
-
-    CD3DSystem11* CD3DSystem11::initSingleton()
-    {
-#if defined(D3D_DISABLE_SYSTEM)
-        return NULL;
-#endif
-
-        if ( !gD3DSystem11 )
-        {
-            gD3DSystem11 = new CD3DSystem11();
-        }
-
-        return gD3DSystem11;
-    }
-
     ID3D11Device* FindD3D11Device( INT_PTR nRelativeBase, void* pTrialDevice )
     {
         INT_PTR nModuleOffset = ( INT_PTR )GetModuleHandle( TEXT( "d3d11.dll" ) );
@@ -210,6 +198,9 @@ namespace D3DPlugin
         m_bD3DHookInstalled = false;
         m_nTextureMode = HTM_NONE;
         m_pTempTex = NULL;
+
+        // Note: Seach for DX11 isn't yet implemented, but would be easy
+        // (since 3.4.0 was the first DX11 release and had EF_Query included again its now no problem anymore)
         m_pDevice = FindD3D11Device( ( INT_PTR )gEnv->pRenderer, gEnv->pRenderer->EF_Query( EFQ_D3DDevice ) );
 
         m_pDeviceCtx = NULL;
@@ -271,9 +262,6 @@ namespace D3DPlugin
         {
             if ( bHook && m_bD3DHookInstalled )
             {
-                void* test1 = getVT( m_pDevice )[vtID3D11DeviceContext_End];
-                void* test2 = ( void* )( fhID3D11DeviceContext_End );
-
                 rehookVT( m_pDevice, ID3D11Device, CreateTexture2D );
                 rehookVT( m_pDevice, ID3D11Device, GetImmediateContext );
                 rehookVT( m_pDeviceCtx, ID3D11DeviceContext, ClearRenderTargetView );
@@ -300,32 +288,6 @@ namespace D3DPlugin
             }
 
             m_bD3DHookInstalled = bHook;
-        }
-    }
-
-    void CD3DSystem11::RegisterListener( ID3DEventListener* item )
-    {
-        vecQueue.push_back( item );
-
-        if ( !m_bD3DHookInstalled && vecQueue.size() > 0 )
-        {
-            hookD3D( true );
-        }
-    }
-
-    void CD3DSystem11::UnregisterListener( ID3DEventListener* item )
-    {
-        for ( std::vector<ID3DEventListener*>::const_iterator iterQueue = vecQueue.begin(); iterQueue != vecQueue.end(); ++iterQueue )
-        {
-            if ( ( *iterQueue ) == item )
-            {
-                iterQueue = vecQueue.erase( iterQueue );
-
-                if ( iterQueue == vecQueue.end() )
-                {
-                    break;
-                }
-            }
         }
     }
 
