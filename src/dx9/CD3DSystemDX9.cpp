@@ -166,6 +166,8 @@ namespace D3DPlugin
 
         static bool bFirstCall = true;
 
+        // Note: Those offsets could be deprecated since the find method is deprecated,
+        // but it doesn't matter since they are also dynamically detected due DummyDevice just a bit slower..
 #ifdef _WIN64
         static LPCTSTR sSubKeyData = D3D_DATA SEP D3D_TARGETX64 SEP D3D_TARGETDX9;
         static LPCTSTR sSubKeyOffset = D3D_OFFSET SEP D3D_TARGETX64 SEP D3D_TARGETDX9;
@@ -194,34 +196,55 @@ namespace D3DPlugin
         void* pInterfaceClass = ( void* )( nRelativeBase + dxoffset );
         int nFunctioncount = 119;
 
+        IDirect3DDevice9* pRet = NULL;
+
         // Calculate Offsets of IUnknown Interface VTable
         dxdata[0] += nModuleOffset;
         dxdata[1] += nModuleOffset;
         dxdata[2] += nModuleOffset;
-        bool bInterfaceOk = CheckForInterface<IUnknown>( pInterfaceClass, dxdata, dxdatalen, __uuidof( IDirect3DDevice9 ), nFunctioncount );
+
+        // Check EF_Query/Trial (should always be correct unless CDK decides its private again or faulty)
+        if ( pTrialDevice )
+        {
+            if ( CheckForInterface<IUnknown>( &pTrialDevice, dxdata, dxdatalen, __uuidof( IDirect3DDevice9 ), nFunctioncount ) )
+            {
+                pRet = static_cast<IDirect3DDevice9*>( pTrialDevice );
+            }
+        }
+
+        // Check saved/default memory offsets
+        if ( !pRet )
+        {
+            if ( CheckForInterface<IUnknown>( pInterfaceClass, dxdata, dxdatalen, __uuidof( IDirect3DDevice9 ), nFunctioncount ) );
+
+            {
+                pRet = *static_cast<IDirect3DDevice9**>( pInterfaceClass );
+            }
+        }
+
         dxdata[0] -= nModuleOffset;
         dxdata[1] -= nModuleOffset;
         dxdata[2] -= nModuleOffset;
 
         // Offset already found
-        if ( bInterfaceOk )
+        if ( !pRet )
         {
-            return *( IDirect3DDevice9** )pInterfaceClass;
+            // Search for offset
+            pRet = FindInterface<IDirect3DDevice9, IUnknown>(
+                       nModuleOffset,
+                       nRelativeBase,
+                       nFunctioncount,
+                       0xFFF,
+                       sSubKeyData,
+                       dxdata,
+                       dxdatalen,
+                       sSubKeyOffset,
+                       dxoffset,
+                       dxoffsetlen,
+                       &GetD3D9DeviceData );
         }
 
-        // Search for offset
-        return FindInterface<IDirect3DDevice9, IUnknown>(
-                   nModuleOffset,
-                   nRelativeBase,
-                   nFunctioncount,
-                   0xFFF,
-                   sSubKeyData,
-                   dxdata,
-                   dxdatalen,
-                   sSubKeyOffset,
-                   dxoffset,
-                   dxoffsetlen,
-                   &GetD3D9DeviceData );
+        return pRet;
     }
 
     CD3DSystem9::CD3DSystem9()
@@ -230,6 +253,7 @@ namespace D3DPlugin
         m_nTextureMode = HTM_NONE;
         m_pTempTex = NULL;
 
+        // since 3.4.0 had EF_Query included again the DX9 search is now deprecated but still included for reference
         m_pDevice = FindD3D9Device( ( INT_PTR )gEnv->pRenderer, gEnv->pRenderer->EF_Query( EFQ_D3DDevice ) );
 
         if ( m_pDevice )
@@ -250,20 +274,6 @@ namespace D3DPlugin
         hookD3D( false );
 
         gD3DSystem9 = NULL;
-    }
-
-    CD3DSystem9* CD3DSystem9::initSingleton()
-    {
-#if defined(D3D_DISABLE_SYSTEM)
-        return NULL;
-#endif
-
-        if ( !gD3DSystem9 )
-        {
-            gD3DSystem9 = new CD3DSystem9();
-        }
-
-        return gD3DSystem9;
     }
 
     void* CD3DSystem9::GetDevice()
@@ -307,32 +317,6 @@ namespace D3DPlugin
             }
 
             m_bD3DHookInstalled = bHook;
-        }
-    }
-
-    void CD3DSystem9::RegisterListener( ID3DEventListener* item )
-    {
-        vecQueue.push_back( item );
-
-        if ( !m_bD3DHookInstalled && vecQueue.size() > 0 )
-        {
-            hookD3D( true );
-        }
-    }
-
-    void CD3DSystem9::UnregisterListener( ID3DEventListener* item )
-    {
-        for ( std::vector<ID3DEventListener*>::const_iterator iterQueue = vecQueue.begin(); iterQueue != vecQueue.end(); ++iterQueue )
-        {
-            if ( ( *iterQueue ) == item )
-            {
-                iterQueue = vecQueue.erase( iterQueue );
-
-                if ( iterQueue == vecQueue.end() )
-                {
-                    break;
-                }
-            }
         }
     }
 
