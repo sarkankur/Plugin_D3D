@@ -13,14 +13,57 @@
 #define PLUGIN_NAME "D3D"
 #define PLUGIN_CONSOLE_PREFIX "[" PLUGIN_NAME " " PLUGIN_TEXT "] " //!< Prefix for Logentries by this plugin
 
+/**
+* @brief small listener helper for event broadcasting
+*/
+#define DECLARE_BROADCAST_EVENT(QUEUE, METHOD, ...) \
+    void METHOD() \
+    { \
+        for(auto iterQueue = QUEUE.begin(); iterQueue!=QUEUE.end(); ++iterQueue) \
+            (*iterQueue)->METHOD(__VA_ARGS__); \
+    }
+
+/**
+* @brief small listener helper for registering listeners
+*/
+#define DECLARE_REGISTER_LISTENER(QUEUE) \
+    void RegisterListener( ID3DEventListener* item )\
+    {\
+        QUEUE.push_back( item );\
+        \
+        if ( !m_bD3DHookInstalled && QUEUE.size() > 0 )\
+        {\
+            hookD3D( true );\
+        }\
+    }
+
+/**
+* @brief small listener helper for unregistering listeners
+*/
+#define DECLARE_UNREGISTER_LISTENER(QUEUE) \
+    void UnregisterListener( ID3DEventListener* item )\
+    {\
+        for ( auto iterQueue = QUEUE.begin(); iterQueue != QUEUE.end(); ++iterQueue )\
+        {\
+            if ( ( *iterQueue ) == item )\
+            {\
+                iterQueue = QUEUE.erase( iterQueue );\
+                \
+                if ( iterQueue == QUEUE.end() )\
+                {\
+                    break;\
+                }\
+            }\
+        }\
+    }
+
 namespace D3DPlugin
 {
     /**
     * @brief Provides information and manages the resources of this plugin.
     */
     class CPluginD3D :
-        public PluginManager::CPluginBase,
-        public IPluginD3D
+        public PluginManager::CPluginBase
     {
         private:
             IPluginD3D* m_pDXSystem;
@@ -59,8 +102,6 @@ namespace D3DPlugin
                 return "Hendrik Polczynski <hendrikpolczyn at gmail dot com>";
             };
 
-            const char* ListCVars() const;
-
             const char* GetStatus() const;
 
             const char* GetCurrentConcreteInterfaceVersion() const
@@ -70,27 +111,13 @@ namespace D3DPlugin
 
             void* GetConcreteInterface( const char* sInterfaceVersion )
             {
-                return static_cast < IPluginD3D* > ( this );
+                return static_cast < IPluginD3D* > ( m_pDXSystem );
             };
 
-            // IPluginD3D
-            IPluginBase* GetBase()
+            PluginManager::IPluginBase* GetBase()
             {
-                return static_cast<IPluginBase*>( this );
+                return static_cast<PluginManager::IPluginBase*>( this );
             };
-
-            void RegisterListener( ID3DEventListener* item );
-            void UnregisterListener( ID3DEventListener* item );
-
-            void* GetDevice();
-
-            void ActivateEventDispatcher( bool bActivate );
-            eD3DType GetType();
-            void* GetSwapChain();
-            void* GetDeviceContext();
-
-            ITexture* CreateTexture( void** pD3DTextureDst, int width, int height, int numMips, ETEX_Format eTF, int flags );
-            ITexture* InjectTexture( void* pD3DTextureSrc, int nWidth, int nHeight, ETEX_Format eTF, int flags );
     };
 
     extern CPluginD3D* gPlugin;

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <IPluginD3D.h>
+#include <CPluginD3D.h>
 
 namespace D3DPlugin
 {
@@ -11,21 +11,20 @@ namespace D3DPlugin
     {
         private:
             bool m_bD3DHookInstalled;
-            std::vector<ID3DEventListener*> vecQueue;
-            CD3DSystem9();
-            void hookD3D( bool bHook );
-            ~CD3DSystem9();
+            std::vector<ID3DEventListener*> m_vecQueue;
 
+            void hookD3D( bool bHook );
         public:
             int m_nTextureMode;
             void* m_pTempTex;
             void* m_pDevice;
 
-            static CD3DSystem9* initSingleton();
+            CD3DSystem9();
+            virtual ~CD3DSystem9();
 
             PluginManager::IPluginBase* GetBase()
             {
-                return NULL;
+                return gPlugin->GetBase();
             };
 
             void ActivateEventDispatcher( bool bActivate )
@@ -33,8 +32,6 @@ namespace D3DPlugin
                 hookD3D( bActivate );
             };
 
-            void RegisterListener( ID3DEventListener* item );
-            void UnregisterListener( ID3DEventListener* item );
             void* GetDevice();
             eD3DType GetType()
             {
@@ -54,17 +51,13 @@ namespace D3DPlugin
             ITexture* InjectTexture( void* pD3DTextureSrc, int nWidth, int nHeight, ETEX_Format eTF, int flags );
 
         public:
-#define BROADCAST_EVENT(METHOD) \
-    void METHOD() { \
-        for(std::vector<ID3DEventListener*>::const_iterator iterQueue = vecQueue.begin(); iterQueue!=vecQueue.end(); ++iterQueue) \
-            (*iterQueue)->METHOD(); \
-    }
-
-            BROADCAST_EVENT( OnPrePresent );
-            BROADCAST_EVENT( OnPostPresent );
-            BROADCAST_EVENT( OnPreReset );
-            BROADCAST_EVENT( OnPostReset );
-            BROADCAST_EVENT( OnPostBeginScene );
+            DECLARE_REGISTER_LISTENER( m_vecQueue );
+            DECLARE_UNREGISTER_LISTENER( m_vecQueue );
+            DECLARE_BROADCAST_EVENT( m_vecQueue, OnPrePresent );
+            DECLARE_BROADCAST_EVENT( m_vecQueue, OnPostPresent );
+            DECLARE_BROADCAST_EVENT( m_vecQueue, OnPreReset );
+            DECLARE_BROADCAST_EVENT( m_vecQueue, OnPostReset );
+            DECLARE_BROADCAST_EVENT( m_vecQueue, OnPostBeginScene );
     };
 
     extern CD3DSystem9* gD3DSystem9;
