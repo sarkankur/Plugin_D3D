@@ -7,7 +7,8 @@
 namespace D3DPlugin
 {
     class CD3DSystem9 :
-        public IPluginD3D, private ID3DEventListener
+        public IPluginD3DEx,
+        private ID3DEventListener
     {
         private:
             bool m_bD3DHookInstalled;
@@ -21,6 +22,11 @@ namespace D3DPlugin
 
             CD3DSystem9();
             virtual ~CD3DSystem9();
+
+            void Release()
+            {
+                delete this;
+            }
 
             PluginManager::IPluginBase* GetBase()
             {

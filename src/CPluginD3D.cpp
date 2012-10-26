@@ -33,11 +33,8 @@ namespace D3DPlugin
 
             if ( bRet )
             {
-                if ( m_pDXSystem )
-                {
-                    delete m_pDXSystem;
-                    m_pDXSystem = NULL;
-                }
+                // Disable hooks and system
+                SAFE_RELEASE( m_pDXSystem );
 
                 // Cleanup like this always (since the class is static its cleaned up when the dll is unloaded)
                 gPluginManager->UnloadPlugin( GetName() );

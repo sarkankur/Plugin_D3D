@@ -7,12 +7,12 @@
 namespace D3DPlugin
 {
     class CD3DSystem11 :
-        public IPluginD3D, private ID3DEventListener
+        public IPluginD3DEx,
+        private ID3DEventListener
     {
         private:
             bool m_bD3DHookInstalled;
             std::vector<ID3DEventListener*> m_vecQueue;
-
             void hookD3D( bool bHook );
         public:
             int m_nTextureMode;
@@ -23,6 +23,11 @@ namespace D3DPlugin
 
             CD3DSystem11();
             virtual ~CD3DSystem11();
+
+            void Release()
+            {
+                delete this;
+            }
 
             PluginManager::IPluginBase* GetBase()
             {

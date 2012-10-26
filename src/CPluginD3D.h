@@ -60,13 +60,26 @@
 namespace D3DPlugin
 {
     /**
-    * @brief Provides information and manages the resources of this plugin.
+    * @brief Small helper to clean up the correct system type (but outside the main interface)
+    */
+    struct IPluginD3DEx :
+        public IPluginD3D
+    {
+        public:
+            /**
+            * @brief Releases the system
+            */
+            virtual void Release() = 0;
+    };
+
+    /**
+    * @brief Provides information and manages the resources of this plugin
     */
     class CPluginD3D :
         public PluginManager::CPluginBase
     {
         private:
-            IPluginD3D* m_pDXSystem;
+            IPluginD3DEx* m_pDXSystem;
 
         public:
             CPluginD3D();
