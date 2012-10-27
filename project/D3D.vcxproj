@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\authors.txt" />
-    <None Include="..\changelog.txt" />
+    <None Include="..\changelog.md" />
     <None Include="..\license.txt" />
     <None Include="..\readme.md" />
   </ItemGroup>

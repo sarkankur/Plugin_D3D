@@ -33,7 +33,7 @@
     <None Include="..\readme.md" />
     <None Include="..\license.txt" />
     <None Include="..\authors.txt" />
-    <None Include="..\changelog.txt" />
+    <None Include="..\changelog.md" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\StdAfx.cpp">
