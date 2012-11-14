@@ -1,4 +1,4 @@
-Plugin_D3D 1.6.2 (30.10.2012)
+Plugin_D3D 1.6.2 (02.11.2012)
 ==============
 New:
 * Sourcecode Release
