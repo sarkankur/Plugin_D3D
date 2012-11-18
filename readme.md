@@ -4,7 +4,7 @@ Purpose of this plugin is to provide access to the Direct3D device and to the re
 
 Installation / Integration
 ==========================
-Extract the files to your CryEngine SDK Folder so that the Code and BinXX/Plugins directory match up.
+Use the installer or extract the files to your CryEngine SDK Folder so that the Code and BinXX/Plugins directory match up.
 
 The plugin manager will automatically load up the plugin when the game/editor is restarted or if you directly load it.
 
