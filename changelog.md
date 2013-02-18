@@ -9,6 +9,9 @@ Changes:
 * DirectX 11 Present Listeners now working
 * DirectX 11 BeginScene Listener now same as PostPresent (compatibility)
 
+Fixes:
+* Fixed a sporadic assert/stack overflow in DX11 mode
+
 Plugin_D3D 1.8.0 (08.02.2013)
 ==============
 Stable Release for CryEngine 3.4.4 (32/64 bit), DX9/DX11

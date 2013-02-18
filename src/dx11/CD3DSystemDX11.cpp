@@ -477,6 +477,7 @@ namespace D3DPlugin
 
             else if ( bHook )
             {
+                // This way isn't possible. Only via bootstrap
                 //if ( m_pSwapChain )
                 //{
                 //    hookVT( m_pSwapChain, IDXGISwapChain, Present );
@@ -491,16 +492,17 @@ namespace D3DPlugin
 
             else if ( m_bD3DHookInstalled )
             {
-                //if ( m_pSwapChain )
-                //{
-                //    unhookVT( m_pSwapChain, IDXGISwapChain, Present );
-                //}
+                // For Unloading
+                if ( m_pSwapChain )
+                {
+                    unhookVT( m_pSwapChain, IDXGISwapChain, Present, false );
+                }
 
-                unhookVT( m_pDevice, ID3D11Device, CreateTexture2D );
-                unhookVT( m_pDevice, ID3D11Device, GetImmediateContext );
-                unhookVT( m_pDeviceCtx, ID3D11DeviceContext, ClearRenderTargetView );
-                unhookVT( m_pDeviceCtx, ID3D11DeviceContext, End );
-                unhookVT( m_pDeviceCtx, ID3D11DeviceContext, GSSetShader );
+                unhookVT( m_pDevice, ID3D11Device, CreateTexture2D, false  );
+                unhookVT( m_pDevice, ID3D11Device, GetImmediateContext, false  );
+                unhookVT( m_pDeviceCtx, ID3D11DeviceContext, ClearRenderTargetView, false  );
+                unhookVT( m_pDeviceCtx, ID3D11DeviceContext, End, false  );
+                unhookVT( m_pDeviceCtx, ID3D11DeviceContext, GSSetShader, false );
             }
 
             m_bD3DHookInstalled = bHook;
