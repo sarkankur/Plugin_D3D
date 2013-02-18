@@ -19,8 +19,9 @@
 #define DECLARE_BROADCAST_EVENT(QUEUE, METHOD, ...) \
     void METHOD() \
     { \
-        for(auto iterQueue = QUEUE.begin(); iterQueue!=QUEUE.end(); ++iterQueue) \
-            (*iterQueue)->METHOD(__VA_ARGS__); \
+        if(m_bD3DHookInstalled) \
+            for(auto iterQueue = QUEUE.begin(); iterQueue!=QUEUE.end(); ++iterQueue) \
+                (*iterQueue)->METHOD(__VA_ARGS__); \
     }
 
 /**
