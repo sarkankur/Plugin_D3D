@@ -11,6 +11,7 @@ Changes:
 
 Fixes:
 * Fixed a sporadic assert/stack overflow in DX11 mode
+* Cleaned up IsBad*Ptr (CheckAccess)
 
 Plugin_D3D 1.8.0 (08.02.2013)
 ==============
